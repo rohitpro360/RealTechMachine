@@ -1,0 +1,74 @@
+Container for the whole slider or card section
+.Pslider {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+/* Card image wrapper (red box instead of image) */
+.image-wrapper {
+  background-color: red;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  border: 5px solid white;
+}
+
+/* General card hover effect */
+.card-hover {
+  transition: transform 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.tall-card {
+  min-height: 350px; /* You can increase this value for taller cards */
+}
+
+
+/* Carousel item fix for Bootstrap to show slides properly */
+.carousel-item {
+  display: flex !important;
+  justify-content: center;
+}
+
+/* Remove extra spacing on small devices */
+@media (max-width: 767px) {
+  .Pslider .col {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Scroll effect only on small screens */
+@media (max-width: 767px) {
+  .mobile-scroll-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .scroll-row {
+    flex-wrap: nowrap !important;
+    display: flex;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .scroll-col {
+    flex: 0 0 auto;
+    width: 80%;
+    max-width: 80%;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .card-hover {
+    min-width: 100%;
+  }
+}

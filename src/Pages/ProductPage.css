@@ -1,0 +1,63 @@
+:root {
+  --nav-offset: 80px; /* adjust if your navbar is taller */
+}
+
+/* Main layout */
+.product-page {
+  margin-top: var(--nav-offset);
+  height: calc(100vh - var(--nav-offset));
+  background: #f8f9fa;
+}
+
+/* Sidebar fixed */
+.sidebar {
+  position: sticky;
+  top: var(--nav-offset);
+  height: calc(100vh - var(--nav-offset));
+  padding: 16px;
+  background: #ffffff;
+  border-right: 1px solid #ddd;
+  overflow: hidden; /* prevent sidebar scroll */
+}
+
+/* Products section scrolls */
+.products-section {
+  height: calc(100vh - var(--nav-offset));
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* Product card styling */
+.product-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 12px;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Image styling */
+.product-image {
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px 12px 0 0;
+}
+
+/* Mobile: no fixed sidebar */
+@media (max-width: 767.98px) {
+  .product-page {
+    height: auto;
+  }
+  .sidebar {
+    position: relative;
+    height: auto;
+    top: 0;
+    border-right: none;
+  }
+  .products-section {
+    height: auto;
+    overflow: visible;
+  }
+}

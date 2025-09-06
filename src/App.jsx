@@ -1,0 +1,227 @@
+
+import React, { useState, useEffect } from "react";  
+import './App.css';
+import Footer from "./Footer";
+import Slider from "./Slider";
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
+import About from "./Pages/About";
+import Contact from "./Pages/Contact";
+import HeroSlider from "./Pages/HeroSlider";
+import PageSlider from "./Pages/PageSlider";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import CustomerMarquee from "./Pages/CustomerMarquee";
+import ProductPage from "./Pages/ProductPage";
+
+
+// ✅ new imports
+// import ProductsPage from "./Pages/Product";
+import Login from "./Pages/Login";
+import Admin from "./Pages/Admin";
+import Location from "./Pages/Location"; 
+import Support from "./Pages/Support";
+
+// ✅ Loader component with GIF
+const Loader = () => (
+  <div className="loader-container">
+    <img src="/images/Loader.gif" alt="Loading..." className="loader-image" />
+    <p className="loader-text">Loading...</p>
+  </div>
+);
+
+// ✅ Updated menuItems
+const menuItems = [
+  { title: 'Company', submenu: ['Subhome 1', 'Subhome 2', 'Subhome 3'] },
+  { title: 'About', submenu: ['Team', 'Company', 'Careers'], link: '/about' },
+  { title: 'Services', submenu: ['Design', 'Development', 'Marketing'] },
+  { 
+    title: 'Products', 
+    submenu: [
+      'Cleaning Machine', 
+      'Ultrasonic Cleaning Machine', 
+      'Industrial component cleaning machine',
+      'Magnetic Separator'
+    ], 
+    link: '/product' 
+  },
+  { title: 'Blog', submenu: ['Latest', 'Tutorials', 'News'] },
+  { 
+    title: 'Contact', 
+    submenu: [
+      { title: 'Location', link: '/location' }, 
+      { title: 'Support', link: '/support' }, 
+      { title: 'FAQ', link: '/contact#faq' }
+    ], 
+    link: '/contact' 
+  },
+  { title: 'Gallery', submenu: ['Photos', 'Videos', 'Events'] },
+  { title: 'More', submenu: ['Partners', 'Resources', 'Feedback'] },
+];
+
+function App() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // ✅ Loader state
+  const [loading, setLoading] = useState(true);
+
+  // ✅ On first load
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // ✅ On route change
+  useEffect(() => {
+    setLoading(true);
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, [location]);
+
+  // ✅ On internet offline/online
+  useEffect(() => {
+    const goOffline = () => setLoading(true);
+    const goOnline = () => setLoading(false);
+
+    window.addEventListener("offline", goOffline);
+    window.addEventListener("online", goOnline);
+
+    return () => {
+      window.removeEventListener("offline", goOffline);
+      window.removeEventListener("online", goOnline);
+    };
+  }, []);
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+    setOpenDropdown(null);
+  };
+
+  const toggleDropdown = (index) => {
+    setOpenDropdown(openDropdown === index ? null : index);
+  };
+
+  return (
+    <div className="app-container">
+      {loading && <Loader />} {/* ✅ loader appears globally */}
+
+      {/* Navbar */}
+      <nav className="navbar">
+        <div className="navbar-logo">
+          <Link to="/">
+            <img src="images/MainLogo.svg" alt="Logo" className="logo-img" />
+          </Link>
+        </div>
+
+        <div className="hamburger" onClick={toggleMenu}>
+          <span className="bar"></span>
+          <span className="bar"></span>
+          <span className="bar"></span>
+        </div>
+
+        <ul className={`navbar-links ${menuOpen ? 'active' : ''}`}>
+          {menuItems.map((item, index) => (
+            <li
+              key={index}
+              className={`navbar-item ${openDropdown === index ? 'open' : ''}`}
+              onClick={() => window.innerWidth <= 768 && toggleDropdown(index)}
+            >
+              {item.link ? (
+                <Link to={item.link} className="navbar-link">{item.title}</Link>
+              ) : (
+                <a href="#!" className="navbar-link">{item.title}</a>
+              )}
+              
+              {/* Dropdown */}
+              <ul className="dropdown">
+                {item.submenu.map((subItem, subIndex) => (
+                  <li key={subIndex}>
+                    {typeof subItem === 'string' ? (
+                      <a href="#!" className="dropdown-link">{subItem}</a>
+                    ) : (
+                      <Link to={subItem.link} className="dropdown-link">
+                        {subItem.title}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+
+        <div className="social-icons">
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"><i className="fab fa-instagram"></i></a>
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"><i className="fab fa-facebook"></i></a>
+          <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer"><i className="fab fa-whatsapp"></i></a>
+        </div>
+      </nav>
+
+      {/* Routes */}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <div style={{ paddingTop: '74px' }}>
+              <HeroSlider />
+
+              <div style={{ marginTop: '30px' }}>
+                <PageSlider />
+              </div>
+
+              <div
+                style={{
+                  backgroundImage: "url('/images/FixedBg1.jpg')",
+                  backgroundAttachment: 'fixed',
+                  backgroundPosition: 'center',
+                  backgroundSize: 'cover',
+                  height: '500px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginTop: '40px'
+                }}
+              >
+              </div>
+              <CustomerMarquee />
+
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic velit quasi praesentium...</p>
+
+              {location.pathname !== '/contact' && (
+                <div style={{ marginTop: '30px' }}>
+                  <Contact />
+                </div>
+              )}
+            </div>
+          }
+        />
+
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/location" element={<Location />} /> 
+        <Route path="/support" element={<Support />} />
+        <Route path="/product" element={<ProductPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<Admin />} />
+      </Routes>
+
+      <button className="floating-contact-button" onClick={() => navigate('/contact')}>
+        Contact Us
+      </button>
+
+      <Footer />
+    </div>
+  );
+}
+
+export default App;
+
+
+
+
+
+
+
+
+
