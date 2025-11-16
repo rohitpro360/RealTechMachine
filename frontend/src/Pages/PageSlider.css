@@ -1,0 +1,44 @@
+/* Main wrapper */
+.Pslider {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: transform 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.tall-card {
+  min-height: 350px;
+}
+
+/* Mobile scroll feature */
+@media (max-width: 767px) {
+  .mobile-scroll-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .scroll-row {
+    display: flex;
+    flex-wrap: nowrap !important;
+  }
+
+  .scroll-col {
+    flex: 0 0 80%;
+    max-width: 80%;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .card-hover {
+    min-width: 100%;
+  }
+}

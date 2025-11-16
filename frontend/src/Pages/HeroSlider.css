@@ -1,0 +1,144 @@
+.hero-slider {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  
+}
+
+.slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-position: center;
+  background-size: cover;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  z-index: 1;
+}
+
+.slide.active {
+  opacity: 1;
+  z-index: 2;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  text-align: center;
+  z-index: 3;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 2rem;
+  border-radius: 10px;
+}
+
+
+.cta-btn {
+  margin-top: 20px;
+  padding: 12px 28px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(90deg, #0d6efd, #6610f2);
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cta-btn:hover {
+  background: linear-gradient(90deg, #6610f2, #0d6efd);
+  transform: scale(1.05);
+}
+
+
+/* Highlight effect when navigated */
+.highlight-section {
+  animation: highlightFade 2s ease-in-out;
+}
+
+@keyframes highlightFade {
+  0% {
+    background-color: rgba(255, 230, 150, 0.7); /* soft yellow glow */
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+.highlight-section {
+  animation: highlightFade 2s ease-in-out;
+}
+
+@keyframes highlightFade {
+  0% {
+    background-color: rgba(13, 110, 253, 0.15);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+
+.hero-slider {
+  position: relative;
+  height: 80vh;
+  background: url("https://images.unsplash.com/photo-1522199710521-72d69614c702")
+    center/cover no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  overflow: hidden;
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 30px 60px;
+  border-radius: 10px;
+}
+
+.slide-text {
+  font-size: 3rem;
+  font-weight: 700;
+  animation: fade 0.8s ease-in-out;
+  text-align: center;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 🔥 Your exact divider styling */
+
+.custom-shape-divider-bottom-1763123669 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.custom-shape-divider-bottom-1763123669 svg {
+  position: relative;
+  display: block;
+  width: calc(170% + 1.3px);
+  height: 170px;
+  transform: rotateY(180deg);
+}
+
+.custom-shape-divider-bottom-1763123669 .shape-fill {
+  fill: #ffffff;
+}

@@ -1,0 +1,237 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap");
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #fff;
+  font-family: "Montserrat", sans-serif;
+}
+
+/* ============================================
+   COMPANY PAGE SCOPED STYLES
+   Prevents style bleed to other pages
+=============================================== */
+#company-section {
+  background-color: #fff;
+}
+
+/* ================= HERO SECTION ================= */
+#company-section .hero-section {
+  position: relative;
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #fff;
+  text-align: center;
+  border-radius: 12px;
+  background-color: #000; /* Prevents flicker and ensures clean load */
+}
+
+#company-section .hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  border-radius: inherit;
+  background-color: transparent;
+}
+
+/* Completely remove overlay */
+#company-section .hero-overlay {
+  display: none !important;
+}
+
+#company-section .hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 20px;
+  max-width: 900px;
+  animation: fadeInUp 1.2s ease-out;
+}
+
+#company-section .hero-content h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #0d6efd, #6610f2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+#company-section .hero-content p {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  line-height: 1.7;
+  color: #f0f0f0;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* ================= SECTIONS ================= */
+#company-section section {
+  padding: 60px 0;
+  position: relative;
+  z-index: 2;
+  background-color: #fff;
+}
+
+#company-section section:nth-of-type(even) {
+  background-color: #f8f9fa;
+}
+
+/* ================= SECTION TITLES ================= */
+#company-section .section-title {
+  text-align: center;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  position: relative;
+  margin-bottom: 2rem;
+  color: #212529;
+}
+
+#company-section .section-title::after {
+  content: "";
+  display: block;
+  margin: 0.5rem auto 0;
+  width: 80px;
+  height: 4px;
+  border-radius: 2px;
+  background: #0d6efd;
+}
+
+/* ================= CARDS ================= */
+#company-section .hover-card {
+  transition: all 0.35s ease;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+#company-section .hover-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+/* ================= FEATURES LIST ================= */
+#company-section .features-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+#company-section .features-list li {
+  position: relative;
+  padding-left: 28px;
+  margin-bottom: 8px;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  color: #333;
+}
+
+#company-section .features-list li::before {
+  content: "✔";
+  position: absolute;
+  left: 0;
+  color: #0d6efd;
+  font-weight: bold;
+}
+
+/* ================= FACTS ================= */
+#company-section .fact-card {
+  border-radius: 12px;
+  transition: transform 0.3s ease, background 0.3s ease;
+  background: #fff;
+}
+
+#company-section .fact-card:hover {
+  background: #f8f9fa;
+  transform: scale(1.05);
+}
+
+/* ================= BACK TO TOP ================= */
+#company-section .back-to-top {
+  position: fixed;
+  bottom: 25px;
+  left: 25px;
+  background-image: linear-gradient(to left, rgb(4, 58, 112), rgb(94, 157, 219));
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+  transition: all 0.3s ease;
+  z-index: 9999;
+  display: none;
+}
+
+#company-section .back-to-top:hover {
+  transform: scale(1.1);
+  background: #0d6efd;
+}
+
+#company-section .show-back-to-top {
+  display: flex !important;
+  animation: fadeIn 0.6s ease;
+}
+
+/* ================= ANIMATIONS ================= */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#company-section .fade-in-section {
+  opacity: 0;
+  transform: translateY(25px);
+  transition: all 0.8s ease-out;
+}
+
+#company-section .fade-in-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  #company-section .hero-content h1 {
+    font-size: clamp(1.8rem, 5vw, 2.3rem);
+  }
+  #company-section .section-title {
+    font-size: clamp(1.3rem, 4vw, 1.6rem);
+  }
+}
+
+@media (max-width: 576px) {
+  #company-section .hero-section {
+    height: 65vh;
+  }
+  #company-section .section-title {
+    font-size: clamp(1.2rem, 5vw, 1.4rem);
+  }
+}
+

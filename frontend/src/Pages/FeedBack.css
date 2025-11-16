@@ -1,0 +1,96 @@
+.feedback-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.feedback-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.feedback-subtitle {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.feedback-form input,
+.feedback-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  outline: none;
+}
+
+.feedback-form input:focus,
+.feedback-form textarea:focus {
+  border-color: #1950e6;
+  box-shadow: 0 0 4px rgba(25, 80, 230, 0.3);
+}
+
+.feedback-btn {
+  background-image: linear-gradient(to right, #145da7, #8eb3db);
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.feedback-btn:hover {
+  transform: scale(1.05);
+  background-image: linear-gradient(to right, #0d3e75, #6d98c9);
+}
+
+.feedback-success {
+  padding: 20px;
+  color: green;
+  font-weight: 600;
+}
+
+.rating-container {
+  margin: 15px 0;
+  text-align: center;
+}
+
+.rating-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.stars {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.star {
+  font-size: 28px;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.star:hover {
+  transform: scale(1.2);
+}
+
+.star.filled {
+  color: #ffb400; /* gold for filled stars */
+}

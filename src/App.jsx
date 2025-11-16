@@ -1,26 +1,31 @@
+import React, { useState, useEffect } from "react";
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { ChevronUp } from "lucide-react";
 
-import React, { useState, useEffect } from "react";  
-import './App.css';
+import NavbarTailwind from "./Pages/NavbarTailwind";
 import Footer from "./Footer";
-import Slider from "./Slider";
-import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import About from "./Pages/About";
-import Contact from "./Pages/Contact";
+
+// ✅ Pages
 import HeroSlider from "./Pages/HeroSlider";
+import HeroMessage from "./Pages/HeroMessage";
 import PageSlider from "./Pages/PageSlider";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import CustomerMarquee from "./Pages/CustomerMarquee";
+import StatsSection from "./Pages/StatsSection";
+import Contact from "./Pages/Contact";
+import About from "./Pages/About";
 import ProductPage from "./Pages/ProductPage";
-
-
-// ✅ new imports
-// import ProductsPage from "./Pages/Product";
+import ProductDetail from "./Pages/ProductDetail";
+import Gallery from "./Pages/Gallery";
 import Login from "./Pages/Login";
 import Admin from "./Pages/Admin";
-import Location from "./Pages/Location"; 
+import Location from "./Pages/Location";
 import Support from "./Pages/Support";
+import FeedBack from "./Pages/FeedBack";
+import Company from "./Pages/Company";
 
-// ✅ Loader component with GIF
+// ✅ Loader component
 const Loader = () => (
   <div className="loader-container">
     <img src="/images/Loader.gif" alt="Loading..." className="loader-image" />
@@ -28,200 +33,151 @@ const Loader = () => (
   </div>
 );
 
-// ✅ Updated menuItems
-const menuItems = [
-  { title: 'Company', submenu: ['Subhome 1', 'Subhome 2', 'Subhome 3'] },
-  { title: 'About', submenu: ['Team', 'Company', 'Careers'], link: '/about' },
-  { title: 'Services', submenu: ['Design', 'Development', 'Marketing'] },
-  { 
-    title: 'Products', 
-    submenu: [
-      'Cleaning Machine', 
-      'Ultrasonic Cleaning Machine', 
-      'Industrial component cleaning machine',
-      'Magnetic Separator'
-    ], 
-    link: '/product' 
-  },
-  { title: 'Blog', submenu: ['Latest', 'Tutorials', 'News'] },
-  { 
-    title: 'Contact', 
-    submenu: [
-      { title: 'Location', link: '/location' }, 
-      { title: 'Support', link: '/support' }, 
-      { title: 'FAQ', link: '/contact#faq' }
-    ], 
-    link: '/contact' 
-  },
-  { title: 'Gallery', submenu: ['Photos', 'Videos', 'Events'] },
-  { title: 'More', submenu: ['Partners', 'Resources', 'Feedback'] },
-];
-
 function App() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isOnline, setIsOnline] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ Loader state
-  const [loading, setLoading] = useState(true);
-
-  // ✅ On first load
+  /* --------------------
+     ⏳ Handle Loader
+  -------------------- */
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1500);
     return () => clearTimeout(timer);
   }, []);
 
-  // ✅ On route change
+  // 🔄 Page Loader on Route Change
   useEffect(() => {
     setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 800);
+    const timer = setTimeout(() => setLoading(false), 700);
     return () => clearTimeout(timer);
   }, [location]);
 
-  // ✅ On internet offline/online
+  /* --------------------
+     🌐 Online / Offline
+  -------------------- */
   useEffect(() => {
-    const goOffline = () => setLoading(true);
-    const goOnline = () => setLoading(false);
-
-    window.addEventListener("offline", goOffline);
-    window.addEventListener("online", goOnline);
-
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
     return () => {
-      window.removeEventListener("offline", goOffline);
-      window.removeEventListener("online", goOnline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-    setOpenDropdown(null);
-  };
+  /* --------------------
+     ⬆️ Back To Top Button
+  -------------------- */
+  useEffect(() => {
+    const handleScroll = () => {
+      const btn = document.getElementById("backToTop");
+      if (btn) {
+        window.scrollY > 300
+          ? btn.classList.add("show-back-to-top")
+          : btn.classList.remove("show-back-to-top");
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-  const toggleDropdown = (index) => {
-    setOpenDropdown(openDropdown === index ? null : index);
+  /* --------------------
+     💡 Extra UX Enhancements
+  -------------------- */
+  const goToContact = () => {
+    navigate("/contact");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
     <div className="app-container">
-      {loading && <Loader />} {/* ✅ loader appears globally */}
+      {/* 🌀 Loader */}
+      {loading && <Loader />}
 
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="navbar-logo">
-          <Link to="/">
-            <img src="images/MainLogo.svg" alt="Logo" className="logo-img" />
-          </Link>
+      {/* 🚫 Offline Banner */}
+      {!isOnline && (
+        <div className="offline-banner animate-fade-in">
+          ⚠️ You’re offline. Some features may not work.
         </div>
+      )}
 
-        <div className="hamburger" onClick={toggleMenu}>
-          <span className="bar"></span>
-          <span className="bar"></span>
-          <span className="bar"></span>
-        </div>
+      {/* 🔝 Navbar */}
+      <NavbarTailwind />
 
-        <ul className={`navbar-links ${menuOpen ? 'active' : ''}`}>
-          {menuItems.map((item, index) => (
-            <li
-              key={index}
-              className={`navbar-item ${openDropdown === index ? 'open' : ''}`}
-              onClick={() => window.innerWidth <= 768 && toggleDropdown(index)}
-            >
-              {item.link ? (
-                <Link to={item.link} className="navbar-link">{item.title}</Link>
-              ) : (
-                <a href="#!" className="navbar-link">{item.title}</a>
-              )}
-              
-              {/* Dropdown */}
-              <ul className="dropdown">
-                {item.submenu.map((subItem, subIndex) => (
-                  <li key={subIndex}>
-                    {typeof subItem === 'string' ? (
-                      <a href="#!" className="dropdown-link">{subItem}</a>
-                    ) : (
-                      <Link to={subItem.link} className="dropdown-link">
-                        {subItem.title}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
-
-        <div className="social-icons">
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"><i className="fab fa-instagram"></i></a>
-          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"><i className="fab fa-facebook"></i></a>
-          <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer"><i className="fab fa-whatsapp"></i></a>
-        </div>
-      </nav>
-
-      {/* Routes */}
+      {/* 🔀 Routes */}
       <Routes>
         <Route
           path="/"
           element={
-            <div style={{ paddingTop: '74px' }}>
+            <main style={{ paddingTop: "74px" }}>
               <HeroSlider />
+              <HeroMessage />
 
-              <div style={{ marginTop: '30px' }}>
+              <section style={{ marginTop: "30px" }}>
                 <PageSlider />
-              </div>
+              </section>
 
               <div
+                className="fixed-bg"
                 style={{
                   backgroundImage: "url('/images/FixedBg1.jpg')",
-                  backgroundAttachment: 'fixed',
-                  backgroundPosition: 'center',
-                  backgroundSize: 'cover',
-                  height: '500px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginTop: '40px'
+                  backgroundAttachment: "fixed",
+                  backgroundPosition: "center",
+                  backgroundSize: "cover",
+                  height: "500px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginTop: "40px",
                 }}
-              >
-              </div>
+              />
+
               <CustomerMarquee />
+              <StatsSection />
 
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic velit quasi praesentium...</p>
-
-              {location.pathname !== '/contact' && (
-                <div style={{ marginTop: '30px' }}>
-                  <Contact />
-                </div>
-              )}
-            </div>
+              {/* Auto-include contact on Home */}
+              <section style={{ marginTop: "40px" }}>
+                <Contact />
+              </section>
+            </main>
           }
         />
 
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/location" element={<Location />} /> 
+        <Route path="/location" element={<Location />} />
         <Route path="/support" element={<Support />} />
         <Route path="/product" element={<ProductPage />} />
+        <Route path="/products/:id" element={<ProductDetail />} />
+        <Route path="/gallery" element={<Gallery />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/feedback" element={<FeedBack />} />
+        <Route path="/company" element={<Company />} />
       </Routes>
 
-      <button className="floating-contact-button" onClick={() => navigate('/contact')}>
+      {/* 💬 Floating Contact Button */}
+      <button className="floating-contact-button pulse" onClick={goToContact}>
         Contact Us
       </button>
 
+      {/* ⬆️ Back To Top Button */}
+      <button
+        id="backToTop"
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        className="back-to-top"
+        aria-label="Back to top"
+      >
+        <ChevronUp size={22} />
+      </button>
+
+      {/* 🔻 Footer */}
       <Footer />
     </div>
   );
 }
 
 export default App;
-
-
-
-
-
-
-
-
-
