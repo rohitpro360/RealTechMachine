@@ -8,6 +8,7 @@ import {
   Alert,
   Spinner,
 } from "react-bootstrap";
+import API_URL from "../config";
 
 const countryCodes = [
   { code: "+1", country: "USA/Canada" },
@@ -93,7 +94,7 @@ const Contact = () => {
     setSubmissionStatus("submitting");
 
     try {
-      const response = await fetch("http://localhost:5000/api/send-contact-email", {
+      const response = await fetch(`${API_URL}/api/send-contact-email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
