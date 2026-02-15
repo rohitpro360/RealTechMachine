@@ -137,6 +137,7 @@ function Navbar() {
         ))}
 
        {/* ✅ Translator Menu Item */}
+       
 <li className="navbar-item translator-container">
   <div className="translator-wrapper">
     <span className="translator-icon">

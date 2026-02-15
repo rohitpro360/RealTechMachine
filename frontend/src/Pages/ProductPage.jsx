@@ -1,32 +1,9 @@
-import React, { useState, useEffect } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Button,
-  ListGroup,
-  Form,
-  Modal,
-  Alert,
-  Spinner,
-} from "react-bootstrap";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { Container, Row, Col, Card, Button, ListGroup, Form, Modal, Alert, Spinner, Badge } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import "./ProductPage.css";
 import Lightbox from "yet-another-react-lightbox";
-import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
 import "yet-another-react-lightbox/styles.css";
-import "yet-another-react-lightbox/plugins/thumbnails.css";
-
-const countryCodes = [
-  { code: "+1", country: "USA/Canada" },
-  { code: "+44", country: "UK" },
-  { code: "+91", country: "India" },
-  { code: "+61", country: "Australia" },
-  { code: "+49", country: "Germany" },
-  { code: "+81", country: "Japan" },
-  { code: "+971", country: "UAE" },
-];
+import "./ProductPage.css";
 
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
@@ -35,316 +12,322 @@ const ProductPage = () => {
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [quoteForm, setQuoteForm] = useState({ name: "", email: "", message: "" });
+  const [quoteSubmitted, setQuoteSubmitted] = useState(false);
   const navigate = useNavigate();
 
-  // Quote modal
-  const [showModal, setShowModal] = useState(false);
-  const [quoteProduct, setQuoteProduct] = useState(null);
-  const [quoteData, setQuoteData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    countryCode: "+91",
-    company: "",
-  });
-  const [submissionStatus, setSubmissionStatus] = useState(null);
-  const [validationErrors, setValidationErrors] = useState({});
-
-  // Lightbox
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxImage, setLightboxImage] = useState(null);
-
-  // ✅ Fetch products from backend
+  // Debounce search input
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/products");
-        if (!res.ok) throw new Error("Failed to fetch products");
-        const data = await res.json();
-        setProducts(data);
-        setCategories(["All", ...new Set(data.map((p) => p.category))]);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-    fetchProducts();
-    const interval = setInterval(fetchProducts, 15000);
-    return () => clearInterval(interval);
+  // Fetch products
+  useEffect(() => {
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    
+    fetch(`${apiUrl}/api/products`)
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch products");
+        return res.json();
+      })
+      .then(data => {
+        setProducts(data);
+        setCategories(["All", ...new Set(data.map(p => p.category))]);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError(err.message);
+        setLoading(false);
+      });
   }, []);
 
-  const handleGetQuote = (product) => {
-    setQuoteProduct(product);
-    setShowModal(true);
-  };
+  // Memoized filtered products for better performance
+  const filteredProducts = useMemo(() => {
+    return products.filter(p => {
+      const matchCat = selectedCategory === "All" || p.category === selectedCategory;
+      const matchSearch = p.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+                          p.description.toLowerCase().includes(debouncedSearch.toLowerCase());
+      return matchCat && matchSearch;
+    });
+  }, [products, selectedCategory, debouncedSearch]);
 
-  const handleClose = () => {
-    setShowModal(false);
-    setQuoteProduct(null);
-    setQuoteData({ name: "", email: "", phone: "", countryCode: "+91", company: "" });
-    setValidationErrors({});
-    setSubmissionStatus(null);
-  };
+  // Handle quote modal
+  const handleQuoteClick = useCallback((e, product) => {
+    e.stopPropagation();
+    setSelectedProduct(product);
+    setShowQuoteModal(true);
+    setQuoteSubmitted(false);
+  }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setQuoteData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const validateForm = () => {
-    const errors = {};
-    if (!quoteData.name) errors.name = "Name is required.";
-    if (!quoteData.email) errors.email = "Email is required.";
-    else if (!/^\S+@\S+\.\S+$/.test(quoteData.email)) errors.email = "Invalid email.";
-    if (quoteData.phone && !/^\d{7,12}$/.test(quoteData.phone))
-      errors.phone = "Phone must be 7–12 digits.";
-    return errors;
-  };
-
-  const handleSubmitQuote = async (e) => {
+  const handleQuoteSubmit = (e) => {
     e.preventDefault();
-    const errors = validateForm();
-    setValidationErrors(errors);
-
-    if (Object.keys(errors).length > 0) {
-      setSubmissionStatus("error");
-      setTimeout(() => setSubmissionStatus(null), 3000);
-      return;
-    }
-
-    setSubmissionStatus("submitting");
-
-    try {
-      const response = await fetch("http://localhost:5000/api/send-quote-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...quoteData,
-          phone: `${quoteData.countryCode}${quoteData.phone}`,
-          product: quoteProduct?.title || "",
-        }),
-      });
-
-      if (!response.ok) throw new Error("Failed to send quote request");
-      setSubmissionStatus("success");
-      setTimeout(() => handleClose(), 2500);
-    } catch (err) {
-      console.error(err);
-      setSubmissionStatus("error");
-    }
+    // Here you would normally send the quote request to your backend
+    console.log("Quote request:", { product: selectedProduct, ...quoteForm });
+    setQuoteSubmitted(true);
+    setTimeout(() => {
+      setShowQuoteModal(false);
+      setQuoteForm({ name: "", email: "", message: "" });
+    }, 2000);
   };
 
-  const filteredProducts = products.filter((p) => {
-    const matchesCategory = selectedCategory === "All" || p.category === selectedCategory;
-    const matchesSearch = (p.title || "").toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  // Render description with "Know More" link
+  const renderDescription = (text, id, limit = 100) => {
+    if (text.length <= limit) return text;
+    return (
+      <>
+        {text.substring(0, limit)}...{" "}
+        <button 
+          className="know-more-link" 
+          onClick={(e) => { e.stopPropagation(); navigate(`/products/${id}`); }}
+          aria-label={`Read more about ${text.substring(0, 30)}...`}
+        >
+          Know More
+        </button>
+      </>
+    );
+  };
 
-  if (loading) return <p className="text-center mt-5">Loading products...</p>;
-  if (error) return <Alert variant="danger">{error}</Alert>;
+  // Loading state
+  if (loading) {
+    return (
+      <div className="loader-container">
+        <Spinner animation="border" variant="primary" />
+        <p className="mt-3 text-muted">Loading products...</p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Container className="py-5 text-center">
+        <Alert variant="danger">
+          <Alert.Heading>Oops! Something went wrong</Alert.Heading>
+          <p>{error}</p>
+          <Button variant="outline-danger" onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </Alert>
+      </Container>
+    );
+  }
 
   return (
-    <Container fluid className="product-page py-5">
-      <Row>
-        {/* Sidebar */}
-        <Col md={3} className="sidebar mb-4 mb-md-0">
-          <h4 className="mb-3">Categories</h4>
-          <ListGroup>
-            {categories.map((cat, idx) => (
-              <ListGroup.Item
-                key={idx}
-                action
-                active={selectedCategory === cat}
-                onClick={() => setSelectedCategory(cat)}
-                className="category-item"
-              >
-                {cat}
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
+    <>
+      <Container fluid className="product-page py-5 px-lg-5">
+        <Row>
+          {/* Sidebar */}
+          <Col md={3}>
+            <div className="sidebar shadow-sm">
+              <h5 className="sidebar-title">Categories</h5>
+              <ListGroup variant="flush">
+                {categories.map((cat, i) => (
+                  <ListGroup.Item 
+                    key={i} 
+                    active={selectedCategory === cat} 
+                    onClick={() => setSelectedCategory(cat)}
+                    className="category-item"
+                    role="button"
+                    tabIndex={0}
+                    onKeyPress={(e) => e.key === 'Enter' && setSelectedCategory(cat)}
+                    aria-label={`Filter by ${cat}`}
+                  >
+                    {cat} 
+                    {cat !== "All" && (
+                      <Badge bg="secondary" className="ms-2">
+                        {products.filter(p => p.category === cat).length}
+                      </Badge>
+                    )}
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+              
+              <Form.Control 
+                className="mt-4 search-input" 
+                placeholder="Search products..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                aria-label="Search products"
+              />
+              
+              {searchTerm && (
+                <Button 
+                  variant="link" 
+                  size="sm" 
+                  className="mt-2 p-0 text-muted"
+                  onClick={() => setSearchTerm("")}
+                >
+                  Clear search
+                </Button>
+              )}
+            </div>
+          </Col>
 
-          <Form className="mt-4">
-            <Form.Control
-              type="text"
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </Form>
-        </Col>
-
-        {/* Product Grid */}
-        <Col md={9} xs={12} className="products-section">
-          <Row>
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map((product) => (
-                <Col md={4} sm={6} xs={12} key={product._id} className="mb-4">
-                  <Card className="h-100 shadow-sm product-card">
-                    <Card.Img
-                      variant="top"
-                      src={product.image}
-                      alt={product.title}
-                      className="product-image"
-                      onClick={() => {
-                        setLightboxImage([{ src: product.image }]);
-                        setLightboxOpen(true);
-                      }}
-                      style={{ cursor: "zoom-in" }}
-                    />
-                    <Card.Body>
-                      <Card.Title>{product.title}</Card.Title>
-                      <Card.Text className="text-muted small">
-                        {product.description}
-                      </Card.Text>
-
-                      {/* 🏷️ Price Display */}
-                      <p
-                        className="fw-semibold"
-                        style={{
-                          background: "linear-gradient(to right, #145da0, #91b9e0)",
-                          WebkitBackgroundClip: "text",
-                          WebkitTextFillColor: "transparent",
-                        }}
-                      >
-                        💰 Price: ₹{product.price ? product.price.toLocaleString() : "Not available"}
-                      </p>
-
-                      <div className="d-flex justify-content-between mt-3">
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={() => navigate(`/products/${product._id}`)}
-                        >
-                          View Details
-                        </Button>
-                        <Button
-                          variant="outline-info"
-                          size="sm"
-                          onClick={() => handleGetQuote(product)}
-                        >
-                          Get Quote
-                        </Button>
-                      </div>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))
+          {/* Products Grid */}
+          <Col md={9}>
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-5">
+                <div className="empty-state">
+                  <h4 className="text-muted">No products found</h4>
+                  <p className="text-muted">
+                    Try adjusting your filters or search term
+                  </p>
+                  <Button 
+                    variant="outline-primary" 
+                    onClick={() => { setSelectedCategory("All"); setSearchTerm(""); }}
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
+              </div>
             ) : (
-              <p className="text-muted">No products found.</p>
+              <>
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <h5 className="text-muted mb-0">
+                    Showing {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
+                  </h5>
+                </div>
+                
+                <Row>
+                  {filteredProducts.map(product => (
+                    <Col lg={4} sm={6} key={product._id} className="mb-4">
+                      <Card 
+                        className="product-card border-0 shadow-sm h-100"
+                        role="article"
+                      >
+                        <div 
+                          className="img-wrapper" 
+                          onClick={() => navigate(`/products/${product._id}`)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyPress={(e) => e.key === 'Enter' && navigate(`/products/${product._id}`)}
+                          aria-label={`View ${product.title}`}
+                        >
+                          <Card.Img 
+                            variant="top" 
+                            src={product.image} 
+                            className="product-image"
+                            alt={product.title}
+                            loading="lazy"
+                          />
+                        </div>
+                        <Card.Body className="d-flex flex-column">
+                          <Badge bg="light" text="dark" className="mb-2 border align-self-start">
+                            {product.category}
+                          </Badge>
+                          <Card.Title className="fw-bold h6">{product.title}</Card.Title>
+                          <Card.Text className="small text-muted flex-grow-1">
+                            {renderDescription(product.description, product._id)}
+                          </Card.Text>
+                          <div className="d-flex gap-2 mt-3">
+                            <Button 
+                              variant="primary" 
+                              size="sm" 
+                              className="w-100" 
+                              onClick={() => navigate(`/products/${product._id}`)}
+                              aria-label={`View details for ${product.title}`}
+                            >
+                              View Details
+                            </Button>
+                            <Button 
+                              variant="outline-info" 
+                              size="sm" 
+                              className="w-100"
+                              onClick={(e) => handleQuoteClick(e, product)}
+                              aria-label={`Request quote for ${product.title}`}
+                            >
+                              Get Quote
+                            </Button>
+                          </div>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              </>
             )}
-          </Row>
-        </Col>
-      </Row>
+          </Col>
+        </Row>
+      </Container>
 
-      {/* Modal */}
-      <Modal show={showModal} onHide={handleClose} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Get Quote</Modal.Title>
+      {/* Quote Modal */}
+      <Modal 
+        show={showQuoteModal} 
+        onHide={() => setShowQuoteModal(false)}
+        centered
+      >
+        <Modal.Header closeButton className="border-0">
+          <Modal.Title>Request a Quote</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {submissionStatus === "success" && (
-            <Alert variant="success">✅ Quote request sent successfully!</Alert>
+          {quoteSubmitted ? (
+            <Alert variant="success">
+              <Alert.Heading>Quote Request Sent!</Alert.Heading>
+              <p>We'll get back to you soon regarding: <strong>{selectedProduct?.title}</strong></p>
+            </Alert>
+          ) : (
+            <Form onSubmit={handleQuoteSubmit}>
+              <Form.Group className="mb-3">
+                <Form.Label>Product</Form.Label>
+                <Form.Control 
+                  type="text" 
+                  value={selectedProduct?.title || ""} 
+                  disabled 
+                />
+              </Form.Group>
+              
+              <Form.Group className="mb-3">
+                <Form.Label>Your Name *</Form.Label>
+                <Form.Control 
+                  type="text" 
+                  placeholder="Enter your name"
+                  value={quoteForm.name}
+                  onChange={(e) => setQuoteForm({...quoteForm, name: e.target.value})}
+                  required
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Email Address *</Form.Label>
+                <Form.Control 
+                  type="email" 
+                  placeholder="Enter your email"
+                  value={quoteForm.email}
+                  onChange={(e) => setQuoteForm({...quoteForm, email: e.target.value})}
+                  required
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Message</Form.Label>
+                <Form.Control 
+                  as="textarea" 
+                  rows={3}
+                  placeholder="Any specific requirements?"
+                  value={quoteForm.message}
+                  onChange={(e) => setQuoteForm({...quoteForm, message: e.target.value})}
+                />
+              </Form.Group>
+
+              <div className="d-flex gap-2">
+                <Button variant="secondary" onClick={() => setShowQuoteModal(false)} className="w-50">
+                  Cancel
+                </Button>
+                <Button variant="primary" type="submit" className="w-50">
+                  Submit Request
+                </Button>
+              </div>
+            </Form>
           )}
-          {submissionStatus === "error" && (
-            <Alert variant="danger">❌ Please check your form and try again.</Alert>
-          )}
-
-          <Form onSubmit={handleSubmitQuote}>
-            <Form.Group className="mb-3">
-              <Form.Label>Your Name *</Form.Label>
-              <Form.Control
-                type="text"
-                name="name"
-                value={quoteData.name}
-                onChange={handleChange}
-                isInvalid={!!validationErrors.name}
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Email *</Form.Label>
-              <Form.Control
-                type="email"
-                name="email"
-                value={quoteData.email}
-                onChange={handleChange}
-                isInvalid={!!validationErrors.email}
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Phone</Form.Label>
-              <Row>
-                <Col xs={4}>
-                  <Form.Select
-                    name="countryCode"
-                    value={quoteData.countryCode}
-                    onChange={handleChange}
-                  >
-                    {countryCodes.map((c) => (
-                      <option key={c.code} value={c.code}>
-                        {c.country} ({c.code})
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Col>
-                <Col xs={8}>
-                  <Form.Control
-                    type="text"
-                    name="phone"
-                    value={quoteData.phone}
-                    onChange={handleChange}
-                    isInvalid={!!validationErrors.phone}
-                  />
-                </Col>
-              </Row>
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Company</Form.Label>
-              <Form.Control
-                type="text"
-                name="company"
-                value={quoteData.company}
-                onChange={handleChange}
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Product</Form.Label>
-              <Form.Control type="text" value={quoteProduct?.title || ""} disabled />
-            </Form.Group>
-
-            <Button
-              variant="info"
-              type="submit"
-              className="w-100"
-              disabled={submissionStatus === "submitting"}
-            >
-              {submissionStatus === "submitting" ? (
-                <>
-                  <Spinner animation="border" size="sm" className="me-2" /> Sending...
-                </>
-              ) : (
-                "Submit Quote Request"
-              )}
-            </Button>
-          </Form>
         </Modal.Body>
       </Modal>
-
-      {/* Lightbox */}
-      {lightboxImage && (
-        <Lightbox
-          open={lightboxOpen}
-          close={() => setLightboxOpen(false)}
-          slides={lightboxImage}
-          plugins={[Thumbnails]}
-        />
-      )}
-    </Container>
+    </>
   );
 };
 

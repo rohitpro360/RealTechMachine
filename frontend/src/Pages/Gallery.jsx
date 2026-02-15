@@ -49,7 +49,7 @@ const Gallery = () => {
             )}
           </div>
 
-          {/* PHOTO GRID */}
+          
           <Row>
             {filteredPhotos.map((photo) => (
               <Col
@@ -75,7 +75,7 @@ const Gallery = () => {
           </Row>
         </Tab>
 
-        {/* ====================== VIDEOS TAB ====================== */}
+       
         <Tab eventKey="videos" title="Videos">
           <Row>
             {videos.length > 0 ? (

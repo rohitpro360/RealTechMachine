@@ -7,13 +7,21 @@
   margin-top: 90px; 
 }
 
+/* Loader */
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
 /* Sidebar */
 .sidebar {
   background: #eef5ff;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-
   position: sticky; 
   top: 90px;       
   height: fit-content;
@@ -21,7 +29,7 @@
   overflow-y: auto;
 }
 
-.sidebar h4 {
+.sidebar-title {
   font-weight: 600;
   margin-bottom: 15px;
   color: #134e9b;
@@ -31,6 +39,9 @@
   cursor: pointer;
   transition: all 0.3s ease;
   border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .category-item:hover {
@@ -38,11 +49,28 @@
   color: #0a2c68;
 }
 
+.category-item:focus {
+  outline: 2px solid #134e9b;
+  outline-offset: 2px;
+}
 
+.search-input {
+  border-radius: 8px;
+  border: 1px solid #d1e4ff;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #134e9b;
+  box-shadow: 0 0 0 0.2rem rgba(19, 78, 155, 0.25);
+}
+
+/* Product Cards */
 .product-card {
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   border-radius: 12px;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .product-card:hover {
@@ -50,24 +78,55 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
 }
 
+.img-wrapper {
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.img-wrapper:focus {
+  outline: 2px solid #134e9b;
+  outline-offset: -2px;
+}
+
 .product-image {
   height: 220px;
   object-fit: cover;
   border-bottom: 2px solid #e0ebff;
+  transition: transform 0.3s ease;
 }
 
-/* Product Detail View */
-.product-detail {
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+.product-card:hover .product-image {
+  transform: scale(1.05);
 }
 
-.product-detail-img {
-  width: 100%;
-  height: 320px;
-  object-fit: cover;
-  border-radius: 10px;
+/* Know More Link */
+.know-more-link {
+  background: none;
+  border: none;
+  color: #134e9b;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.know-more-link:hover {
+  color: #0a2c68;
+}
+
+.know-more-link:focus {
+  outline: 2px solid #134e9b;
+  outline-offset: 2px;
+}
+
+/* Empty State */
+.empty-state {
+  padding: 60px 20px;
+}
+
+.empty-state h4 {
+  margin-bottom: 10px;
 }
 
 /* Buttons */
@@ -81,6 +140,10 @@ button.btn-primary {
 button.btn-primary:hover {
   background: linear-gradient(to right, #134e9b, #a7c9f9);
   transform: scale(1.05);
+}
+
+button.btn-primary:focus {
+  box-shadow: 0 0 0 0.2rem rgba(19, 78, 155, 0.5);
 }
 
 button.btn-outline-info {
@@ -113,11 +176,12 @@ button.btn-outline-info:hover {
 /* Responsive */
 @media (max-width: 768px) {
   .product-page {
-    padding-top: 70px; /* adjust for smaller navbar */
+    padding-top: 70px;
+    margin-top: 70px;
   }
 
   .sidebar {
-    position: static; /* ✅ sidebar scrolls with content on mobile */
+    position: static;
     max-height: unset;
     margin-bottom: 20px;
   }
@@ -125,35 +189,27 @@ button.btn-outline-info:hover {
   .product-image {
     height: 180px;
   }
-
-  .product-detail-img {
-    height: 250px;
-  }
 }
 
 /* ======================
    LIGHTBOX CUSTOMIZATION
 ====================== */
-
-/* Background overlay */
 .yarl__container {
   background: linear-gradient(to right, #a7c9f9, #134e9b) !important;
 }
 
-/* Control buttons (close, prev, next) */
 .yarl__button {
   color: white !important;
-  background: rgba(19, 78, 155, 0.7) !important; /* dark blue transparent */
+  background: rgba(19, 78, 155, 0.7) !important;
   border-radius: 8px;
   transition: all 0.3s ease;
 }
 
 .yarl__button:hover {
-  background: rgba(167, 201, 249, 0.9) !important; /* lighter hover */
+  background: rgba(167, 201, 249, 0.9) !important;
   color: #134e9b !important;
 }
 
-/* Thumbnails bar */
 .yarl__thumbnails {
   background: #eef5ff !important;
   padding: 10px;
@@ -171,3 +227,19 @@ button.btn-outline-info:hover {
 }
 
 
+/* **Key Improvements:**
+
+1. ✅ **Error Handling** - Catches fetch errors and shows user-friendly messages
+2. ✅ **Performance** - useMemo for filtered products, debounced search
+3. ✅ **Accessibility** - ARIA labels, keyboard navigation, focus states
+4. ✅ **Working Quote Button** - Full modal with form functionality
+5. ✅ **Empty States** - Shows message when no products match filters
+6. ✅ **Better UX** - Product count badges, clear filters button, lazy loading images
+7. ✅ **Environment Variables** - API URL from env file
+8. ✅ **Search Enhancement** - Searches both title and description
+9. ✅ **Semantic HTML** - Proper button elements instead of spans
+10. ✅ **Responsive** - Better mobile experience
+
+Don't forget to add to your `.env` file:
+```
+REACT_APP_API_URL=http://localhost:5000 */

@@ -89,7 +89,7 @@ function NavbarTailwind() {
                 className="md:tw-hidden tw-text-white tw-text-2xl"
                 onClick={toggleMenu}
             >
-                ☰
+                ☰ 
             </button>
 
             {/* Menu */}
@@ -185,6 +185,6 @@ function NavbarTailwind() {
             </div>
         </nav>
     );
-}
 
+}
 export default NavbarTailwind;

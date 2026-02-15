@@ -97,7 +97,7 @@ function App() {
           path="/"
           element={
             <div style={{ paddingTop: '74px' }}>
-              <HeroSlider />
+              {/* <HeroSlider /> */}
 
               <HeroMessage />
 

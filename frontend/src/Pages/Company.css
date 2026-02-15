@@ -15,12 +15,14 @@ body {
 =============================================== */
 #company-section {
   background-color: #fff;
+  
 }
 
 /* ================= HERO SECTION ================= */
 #company-section .hero-section {
   position: relative;
   height: 80vh;
+  top:-10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -234,4 +236,5 @@ body {
     font-size: clamp(1.2rem, 5vw, 1.4rem);
   }
 }
+
 
