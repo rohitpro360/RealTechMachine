@@ -4,6 +4,8 @@ import { Container, Tabs, Tab, Row, Col, Card, Button } from "react-bootstrap";
 import "./Gallery.css";
 import "animate.css";
 
+import API_URL from "../config";
+
 const Gallery = () => {
   const [filter, setFilter] = useState("all");
   const [lightbox, setLightbox] = useState(null);
@@ -12,7 +14,7 @@ const Gallery = () => {
   // Fetch gallery from backend
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/gallery")
+      .get(`${apiUrl}/api/gallery`)
       .then((res) => setGallery(res.data))
       .catch((err) => console.error("Gallery Load Error:", err));
   }, []);
