@@ -94,7 +94,7 @@ const ProductDetail = () => {
     setSubmissionStatus("submitting");
 
     try {
-      const response = await fetch("http://localhost:5000/api/send-quote-email", {
+      const response = await fetch(`${API_URL}/api/send-quote-email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
