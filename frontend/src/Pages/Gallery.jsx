@@ -3,7 +3,7 @@ import axios from "axios";
 import { Container, Tabs, Tab, Row, Col, Card, Button } from "react-bootstrap";
 import "./Gallery.css";
 import "animate.css";
-
+import API_URL from "../config";
 const Gallery = () => {
   const [filter, setFilter] = useState("all");
   const [lightbox, setLightbox] = useState(null);
