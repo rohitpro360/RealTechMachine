@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import API_URL from "../config";
 import {
   Form,
   Button,
@@ -93,7 +94,7 @@ const Contact = () => {
     setSubmissionStatus("submitting");
 
     try {
-      const response = await fetch("http://localhost:5000/api/send-contact-email", {
+      const response = await fetch(`${API_URL}/api/send-contact-email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
