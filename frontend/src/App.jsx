@@ -14,14 +14,14 @@ import ProductPage from "./Pages/ProductPage";
 import ProductDetail from "./Pages/ProductDetail";
 import Gallery from "./Pages/Gallery";
 import HeroMessage from "./Pages/HeroMessage";
-// import Login from "./Pages/Login";
-// import Admin from "./Pages/Admin";
 import Location from "./Pages/Location";
 import Support from "./Pages/Support";
 import FeedBack from "./Pages/FeedBack";
 import Company from "./Pages/Company";
 import { ChevronUp } from "lucide-react";
 import StatsSection from "./Pages/StatsSection";
+import MachInfo from "./Pages/MachInfo";
+import Advantage from "./Pages/Advantage";
 
 
 // ✅ Loader component
@@ -100,10 +100,13 @@ function App() {
               {/* <HeroSlider /> */}
 
               <HeroMessage />
+              <MachInfo />
 
               <div style={{ marginTop: '30px' }}>
                 <PageSlider />
               </div>
+
+              <Advantage />
 
               <div
                 style={{

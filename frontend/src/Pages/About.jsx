@@ -1,60 +1,117 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./About.css";
 
-const About = () => {
-  // ✅ Smooth Scroll Setup
+/* ── tiny hook: triggers when element enters viewport ── */
+function useInView(threshold = 0.15) {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+
   useEffect(() => {
-    const links = document.querySelectorAll(".hero-links a");
-    links.forEach(link => {
-      link.addEventListener("click", (e) => {
-        e.preventDefault();
-        const targetId = link.getAttribute("href").substring(1);
-        const target = document.getElementById(targetId);
-        if (target) {
-          window.scrollTo({
-            top: target.offsetTop - 70,
-            behavior: "smooth",
-          });
-        }
-      });
-    });
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setInView(true); },
+      { threshold }
+    );
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [threshold]);
+
+  return [ref, inView];
+}
+
+/* ── animated counter ── */
+function Counter({ target, suffix = "" }) {
+  const [count, setCount] = useState(0);
+  const [ref, inView] = useInView();
+
+  useEffect(() => {
+    if (!inView) return;
+    let start = 0;
+    const duration = 1800;
+    const step = Math.ceil(target / (duration / 16));
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= target) { setCount(target); clearInterval(timer); }
+      else setCount(start);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [inView, target]);
+
+  return <span ref={ref}>{count}{suffix}</span>;
+}
+
+const About = () => {
+  /* smooth scroll for hero links */
+  useEffect(() => {
+    const handler = (e) => {
+      const link = e.target.closest(".hero-links a");
+      if (!link) return;
+      e.preventDefault();
+      const target = document.getElementById(link.getAttribute("href").substring(1));
+      if (target) window.scrollTo({ top: target.offsetTop - 70, behavior: "smooth" });
+    };
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
   }, []);
+
+  const [heroRef, heroIn] = useInView(0.1);
+  const [ceoRef, ceoIn] = useInView();
+  const [missionRef, missionIn] = useInView();
+  const [teamRef, teamIn] = useInView();
+  const [ctaRef, ctaIn] = useInView();
+
+  const teamMembers = [
+    { img: "/images/team1.jpg", name: "Jane Smith",      role: "Chief Operating Officer" },
+    { img: "/images/team2.jpg", name: "Michael Johnson", role: "Chief Technology Officer" },
+    { img: "/images/team3.jpg", name: "Sarah Williams",  role: "Head of Marketing" },
+  ];
 
   return (
     <div className="about-page">
 
-      {/* 🌅 Amdocs-style Hero Section */}
-      {/* 🌅 Amdocs-style Hero Section */}
-<section className="about-hero-modern">
-  <div className="hero-bg-container">
-    <img
-      src="/images/Slider3.jpg" // 👉 Replace with your actual background image
-      alt="Hero Background"
-      className="hero-bg"
-    />
-    <div className="hero-overlay"></div>
-  </div>
+      {/* ══════════════════════════════════════
+          HERO — full-width, no container clipping
+      ══════════════════════════════════════ */}
+      <section className="about-hero-modern" ref={heroRef}>
+        <div className="hero-bg-container">
+          <img
+            src="/images/Slider3.jpg"
+            alt="Hero Background"
+            className="hero-bg"
+          />
+          <div className="hero-overlay" />
+        </div>
 
-  <div className="hero-content">
-    <h4 className="animate-text delay-1">SO-SO IS A NO GO</h4>
-    <h1 className="animate-text delay-2">
-      make it <span>amazing</span>
-    </h1>
+        <div className={`hero-content ${heroIn ? "hero-content--visible" : ""}`}>
+          <span className="hero-eyebrow">SO-SO IS A NO GO</span>
+          <h1>
+            make it <span className="hero-accent">amazing</span>
+          </h1>
+          <p className="hero-sub">
+            Delivering innovative engineering &amp; technology solutions since 2006
+          </p>
+          <div className="hero-links">
+            <a href="#company">Company</a>
+            <a href="#stats">Project Stats</a>
+            <a href="#careers">Careers</a>
+          </div>
+        </div>
 
-    <div className="hero-links animate-text delay-3">
-      <a href="#company">Company</a>
-      <a href="#stats">Project stats</a>
-      <a href="#careers">Careers</a>
-    </div>
-  </div>
-</section>
+        {/* scroll indicator */}
+        <div className="hero-scroll-indicator">
+          <span />
+        </div>
+      </section>
 
-      {/* CEO Section */}
-      <section className="about-ceo">
+      {/* ══════════════════════════════════════
+          CEO MESSAGE
+      ══════════════════════════════════════ */}
+      <section className={`about-ceo ${ceoIn ? "section--visible" : ""}`} ref={ceoRef}>
         <div className="about-ceo-img">
-          <img src="/images/ceo.jpg" alt="CEO" />
+          <img src="/images/ceo.jpg" alt="CEO Shashikant Valatkar" />
+          <div className="ceo-img-ring" />
         </div>
         <div className="about-ceo-text">
+          <span className="section-label">Leadership</span>
           <h2>Message from Our CEO</h2>
           <p>
             Welcome to our company! Since day one, our mission has been to deliver
@@ -62,98 +119,136 @@ const About = () => {
             to driving growth for our partners and creating sustainable value for
             our customers worldwide.
           </p>
-          <p className="ceo-name">— Shashikant Valatkar, CEO</p>
+          <p className="ceo-name">— Shashikant Valatkar, CEO &amp; Founder</p>
         </div>
       </section>
 
-      {/* Company Section */}
+      {/* ══════════════════════════════════════
+          OUR COMPANY
+      ══════════════════════════════════════ */}
       <section id="company" className="about-company">
-        <h2>Our Company</h2>
-        <p>
-          Founded in 2006, we are a leading provider of innovative engineering and
-          technology solutions. With a strong presence in multiple industries, our
-          company has built a reputation for excellence, reliability, and customer
-          satisfaction. From product design to large-scale industrial solutions, we
-          are proud to be shaping the future.
-        </p>
+        <div className="about-company-inner">
+          <span className="section-label">Who We Are</span>
+          <h2>Our Company</h2>
+          <p>
+            Founded in 2006, we are a leading provider of innovative engineering and
+            technology solutions. With a strong presence in multiple industries, our
+            company has built a reputation for excellence, reliability, and customer
+            satisfaction. From product design to large-scale industrial solutions, we
+            are proud to be shaping the future.
+          </p>
+        </div>
       </section>
 
-      {/* Mission & Vision */}
-      <section className="about-mission">
-        <div className="about-card">
+      {/* ══════════════════════════════════════
+          MISSION & VISION
+      ══════════════════════════════════════ */}
+      <section
+        className={`about-mission ${missionIn ? "section--visible" : ""}`}
+        ref={missionRef}
+      >
+        <div className="about-card stagger-1">
+          <div className="card-icon">🎯</div>
           <h3>Our Mission</h3>
           <p>
             To provide reliable, innovative, and sustainable solutions that
-            empower industries and improve lives.
+            empower industries and improve lives across the globe.
           </p>
         </div>
-        <div className="about-card">
+        <div className="about-card stagger-2">
+          <div className="card-icon">🔭</div>
           <h3>Our Vision</h3>
           <p>
             To be a global leader in engineering excellence and customer trust,
-            shaping a better tomorrow.
+            shaping a better tomorrow through cutting-edge technology.
+          </p>
+        </div>
+        <div className="about-card stagger-3">
+          <div className="card-icon">💡</div>
+          <h3>Our Values</h3>
+          <p>
+            Integrity, innovation, and impact — the three pillars that guide every
+            decision we make and every product we build.
           </p>
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="about-team">
-        <h2>Meet Our Leadership Team</h2>
-        <div className="team-grid">
-          <div className="team-card">
-            <img src="/images/team1.jpg" alt="Team Member 1" />
-            <h3>Jane Smith</h3>
-            <p>Chief Operating Officer</p>
-          </div>
-          <div className="team-card">
-            <img src="/images/team2.jpg" alt="Team Member 2" />
-            <h3>Michael Johnson</h3>
-            <p>Chief Technology Officer</p>
-          </div>
-          <div className="team-card">
-            <img src="/images/team3.jpg" alt="Team Member 3" />
-            <h3>Sarah Williams</h3>
-            <p>Head of Marketing</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Achievements */}
+      {/* ══════════════════════════════════════
+          STATS
+      ══════════════════════════════════════ */}
       <section id="stats" className="about-stats">
         <div className="stat">
-          <h2>18+</h2>
+          <h2><Counter target={18} suffix="+" /></h2>
           <p>Years of Excellence</p>
         </div>
         <div className="stat">
-          <h2>500+</h2>
+          <h2><Counter target={500} suffix="+" /></h2>
           <p>Clients Worldwide</p>
         </div>
         <div className="stat">
-          <h2>1000+</h2>
+          <h2><Counter target={1000} suffix="+" /></h2>
           <p>Projects Delivered</p>
+        </div>
+        <div className="stat">
+          <h2><Counter target={98} suffix="%" /></h2>
+          <p>Client Satisfaction</p>
         </div>
       </section>
 
-      {/* Careers Section */}
-      <section id="careers" className="about-careers">
-        <h2>Careers at Our Company</h2>
-        <p>
-          We’re always looking for passionate, talented people to join our growing
-          team. If you’re ready to make an impact and grow your career, explore our
-          opportunities today.
-        </p>
-        <button className="career-button">View Open Positions</button>
+      {/* ══════════════════════════════════════
+          TEAM
+      ══════════════════════════════════════ */}
+      <section
+        className={`about-team ${teamIn ? "section--visible" : ""}`}
+        ref={teamRef}
+      >
+        <span className="section-label">The People Behind It</span>
+        <h2>Meet Our Leadership Team</h2>
+        <div className="team-grid">
+          {teamMembers.map((m, i) => (
+            <div className={`team-card stagger-${i + 1}`} key={i}>
+              <div className="team-img-wrap">
+                <img src={m.img} alt={m.name} />
+                <div className="team-img-overlay" />
+              </div>
+              <h3>{m.name}</h3>
+              <p>{m.role}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="about-cta">
-        <h2>Let’s Build the Future Together</h2>
+      {/* ══════════════════════════════════════
+          CAREERS
+      ══════════════════════════════════════ */}
+      <section id="careers" className="about-careers">
+        <div className="careers-inner">
+          <span className="section-label">Join Us</span>
+          <h2>Careers at Our Company</h2>
+          <p>
+            We're always looking for passionate, talented people to join our growing
+            team. If you're ready to make an impact and grow your career, explore our
+            opportunities today.
+          </p>
+          <button className="career-button">View Open Positions</button>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          CALL TO ACTION
+      ══════════════════════════════════════ */}
+      <section
+        className={`about-cta ${ctaIn ? "section--visible" : ""}`}
+        ref={ctaRef}
+      >
+        <h2>Let's Build the Future Together</h2>
         <p>
           Partner with us and take your business to the next level with our
           cutting-edge solutions.
         </p>
         <button className="cta-button">Contact Us</button>
       </section>
+
     </div>
   );
 };
