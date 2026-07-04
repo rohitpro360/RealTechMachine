@@ -11,6 +11,7 @@ import {
   Row,
   Col,
 } from "react-bootstrap";
+import "./ProductDetail.css";
 
 import API_URL from "../config";
 
@@ -119,52 +120,43 @@ const ProductDetail = () => {
   if (!product) return <p className="text-center mt-5">Product not found.</p>;
 
   return (
-    <Container className="mt-5 pt-5">
-      <Card className="shadow-lg border-0 rounded-3 overflow-hidden">
+    <Container fluid className="product-detail-page">
+      <Card className="product-detail-card">
         <Row className="g-0">
           {/* Product Image */}
           <Col
             md={6}
-            className="d-flex align-items-center justify-content-center bg-light"
+            cclassName="product-image-section d-flex align-items-center justify-content-center"
           >
             <Card.Img
               src={product.image}
               alt={product.title}
-              className="img-fluid p-3"
+              className="product-detail-image"
               style={{ maxHeight: "420px", objectFit: "contain" }}
             />
           </Col>
 
           {/* Product Info */}
           <Col md={6}>
-            <Card.Body className="p-4">
-              <h2 className="fw-bold mb-3">{product.title}</h2>
+            <Card.Body className="product-info">
+              <h2 className="product-title">{product.title}</h2>
 
-              <p className="text-muted">{product.description}</p>
-              <p>
-                <strong>Category:</strong> {product.category}
-              </p>
+              <p className="product-description">{product.description}</p>
+              <div className="product-category-badge">
+  {product.category}
+</div>
 
               {/* 💸 Price Display */}
-              <p
-                className="fw-bold fs-5 mb-4"
-                style={{
-                  background: "linear-gradient(to right, #145da0, #91b9e0)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  textShadow: "0px 0px 8px rgba(145,185,224,0.4)",
-                }}
-              >
-                💸 Price: ₹
-                {product.price
-                  ? product.price.toLocaleString()
-                  : "Not available"}
-              </p>
-
+              <div className="product-price">
+  ₹
+  {product.price
+    ? product.price.toLocaleString()
+    : "Not available"}
+</div>
               <Button
                 variant="info"
                 size="lg"
-                className="shadow-sm"
+  className="quote-btn"
                 onClick={() => setShowModal(true)}
               >
                 Get Quote
