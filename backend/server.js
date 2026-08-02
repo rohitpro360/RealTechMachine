@@ -251,12 +251,34 @@ import tls from "tls";
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
+import http from "http";
+import { Server } from "socket.io";
 
 tls.DEFAULT_MIN_VERSION = "TLSv1.2";
 dotenv.config();
 
 // ✅ Initialize Express
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:5175",
+      "http://localhost:3000",
+      "https://realtechfrontend.onrender.com",
+      "https://realtechadminpanel.onrender.com",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("🔌 Client connected:", socket.id);
+  socket.on("disconnect", () => console.log("🔌 Client disconnected:", socket.id));
+});
 
 // ✅ CORS Configuration
 app.use(
@@ -264,6 +286,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:5174",
+      "http://localhost:5175",
       "http://localhost:3000",
       "https://realtechfrontend.onrender.com",
       "https://realtechadminpanel.onrender.com"
@@ -452,6 +475,22 @@ app.get("/api/emails", async (req, res) => {
     res.json(emails);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch emails" });
+  }
+});
+
+/* ------------------- REPORTS ROUTE ------------------- */
+app.get("/api/reports", async (req, res) => {
+  try {
+    const [totalProducts, totalEmails, unreadEmails] = await Promise.all([
+      Product.countDocuments(),
+      Email.countDocuments(),
+      Email.countDocuments({ isRead: false }),
+    ]);
+
+    res.json({ totalProducts, totalEmails, unreadEmails });
+  } catch (error) {
+    console.error("❌ Error fetching reports:", error);
+    res.status(500).json({ error: "Failed to fetch reports" });
   }
 });
 
